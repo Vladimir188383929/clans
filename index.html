@@ -323,7 +323,15 @@
       <p class="section-subtitle">Заполни все поля, чтобы командир клана мог рассмотреть твою кандидатуру. Поля со звёздочкой (*) обязательны.</p>
 
       <div class="form-container">
-        <form id="clanForm">
+        <!-- ВАЖНО: action указывает на твою почту. method="POST" нужен для отправки -->
+        <form id="clanForm" action="https://formsubmit.co/minenkovlad024@gmail.com" method="POST">
+          
+          <!-- Скрытые настройки FormSubmit -->
+          <input type="hidden" name="_subject" value="Новая заявка в клан из Мира Танков!">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_next" value="https://vladimir188383929.github.io/"> <!-- Сюда вернет после отправки -->
+
           <div class="form-row">
             <div class="form-group">
               <label>Никнейм в игре <span>*</span></label>
@@ -413,11 +421,6 @@
   </footer>
 
 <script>
-// ==========================================
-// ВНИМАНИЕ! ЗАМЕНИ ЭТУ ПОЧТУ НА СВОЮ:
-const MY_EMAIL = "minenkovlad024@gmail.com"; 
-// ==========================================
-
 const form = document.getElementById('clanForm');
 const appList = document.getElementById('appList');
 const nav = document.getElementById('mainNav');
@@ -477,10 +480,10 @@ function renderApplications() {
   });
 }
 
-// Отправка формы через AJAX (без перезагрузки страницы)
-form.addEventListener('submit', async (e) => {
-  e.preventDefault(); // Отменяем перезагрузку страницы
-
+// Сохраняем заявку локально ПЕРЕД отправкой формы (пока страница не перезагрузилась)
+form.addEventListener('submit', (e) => {
+  // НЕ ВЫЗЫВАЕМ e.preventDefault()! Форма должна уйти на сервер FormSubmit.
+  
   const nickname = document.getElementById('nickname').value.trim();
   const server = document.getElementById('server').value;
   const battles = document.getElementById('battles').value;
@@ -491,60 +494,15 @@ form.addEventListener('submit', async (e) => {
   const telegramLink = document.getElementById('telegramLink').value.trim();
   const comment = document.getElementById('comment').value.trim();
 
-  // 1. Сохраняем локально
   const newApp = { 
     nickname, server, battles, wn8, tankClass, mic, 
     discordLink, telegramLink, comment, 
     timestamp: Date.now() 
   };
 
+  // Добавляем в список и сохраняем в браузере
   applications.push(newApp);
   localStorage.setItem('wotApplications', JSON.stringify(applications));
-  renderApplications();
-  form.reset();
-
-  // 2. Меняем кнопку на "Отправка..."
-  const submitBtn = form.querySelector('.btn-submit');
-  const originalText = submitBtn.textContent;
-  submitBtn.textContent = 'Отправка...';
-  submitBtn.disabled = true;
-
-  // 3. Отправляем в фоне на FormSubmit
-  try {
-    const response = await fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
-      method: "POST",
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        "Никнейм": nickname,
-        "Сервер": server,
-        "Боёв": battles,
-        "WN8": wn8,
-        "Класс": tankClass,
-        "Микрофон": mic,
-        "Discord": discordLink || 'Не указан',
-        "Telegram": telegramLink || 'Не указан',
-        "Комментарий": comment || 'Нет',
-        "_subject": "Новая заявка в клан!"
-      })
-    });
-
-    if (response.ok) {
-      alert(`Заявка от игрока ${nickname} успешно отправлена на почту клана!`);
-    } else {
-      alert(`Заявка от ${nickname} сохранена локально, но не удалось отправить письмо. Проверьте настройки FormSubmit.`);
-    }
-  } catch (error) {
-    alert(`Ошибка сети. Заявка сохранена локально.`);
-  } finally {
-    // Возвращаем кнопку в исходное состояние
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
-  }
-
-  document.getElementById('applications').scrollIntoView({ behavior: 'smooth' });
 });
 
 btnClear.addEventListener('click', () => {
