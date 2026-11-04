@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Набор в клан — Мир танков</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #e6e6e6;
+    line-height: 1.6;
+    min-height: 100vh;
+    background-color: #14171a;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(122, 139, 58, 0.10), transparent 45%),
+      radial-gradient(circle at 80% 70%, rgba(90, 70, 40, 0.12), transparent 50%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 12px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,0.20) 0 2px, transparent 2px 14px),
+      linear-gradient(160deg, #1b1f14 0%, #14171a 40%, #1a1c16 100%);
+    background-attachment: fixed;
+  }
+
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.55) 100%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0 1px, transparent 1px 3px);
+  }
+
+  header, .ribbon, main, footer { position: relative; z-index: 1; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 32px;
+    background: rgba(15, 18, 20, 0.92);
+    backdrop-filter: blur(4px);
+    border-bottom: 2px solid #7a8b3a;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .logo {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #a8c04a;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+
+  nav { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .nav-btn {
+    background: transparent;
+    border: 1px solid #3a4148;
+    color: #c8c8c8;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .nav-btn:hover, .nav-btn.active { border-color: #7a8b3a; color: #a8c04a; }
+
+  .ribbon {
+    height: 6px;
+    background: repeating-linear-gradient(90deg, #7a8b3a 0 24px, #3a4148 24px 48px);
+    border-bottom: 1px solid rgba(0,0,0,0.5);
+  }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+
+  .section-title {
+    font-size: 1.8rem;
+    color: #a8c04a;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 4px solid #7a8b3a;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+  }
+
+  .section-subtitle {
+    color: #9aa0a6;
+    margin-bottom: 30px;
+    font-size: 1rem;
+    padding-left: 16px;
+  }
+
+  .form-container {
+    background: rgba(35, 39, 45, 0.92);
+    border: 1px solid #3a4148;
+    border-left: 4px solid #7a8b3a;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    margin-bottom: 40px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #c8c8c8;
+    font-size: 0.95rem;
+    font-weight: bold;
+  }
+
+  .form-group label span { color: #c94a4a; margin-left: 4px; }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: #14171a;
+    border: 1px solid #3a4148;
+    border-radius: 4px;
+    color: #e6e6e6;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #a8c04a;
+    box-shadow: 0 0 0 2px rgba(168, 192, 74, 0.15);
+  }
+
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .btn-submit {
+    background: #7a8b3a;
+    color: #111417;
+    border: none;
+    padding: 12px 32px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+    margin-top: 10px;
+  }
+
+  .btn-submit:hover { background: #a8c04a; }
+  .btn-submit:active { transform: scale(0.98); }
+
+  .applications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .btn-clear {
+    background: transparent;
+    color: #c94a4a;
+    border: 1px solid #c94a4a;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-clear:hover { background: #c94a4a; color: #fff; }
+
+  .applications-list { display: grid; gap: 16px; }
+
+  .app-card {
+    background: rgba(35, 39, 45, 0.92);
+    border: 1px solid #3a4148;
+    border-left: 4px solid #4a5230;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3a4148;
+  }
+
+  .app-nickname { font-size: 1.2rem; font-weight: bold; color: #a8c04a; }
+  .app-date { font-size: 0.8rem; color: #666; }
+
+  .app-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .app-stats span {
+    background: rgba(58, 65, 72, 0.9);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #3a4148;
+    font-size: 0.85rem;
+    color: #c8c8c8;
+  }
+
+  .app-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .app-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(58, 65, 72, 0.6);
+    color: #a8c04a;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: 1px solid #3a4148;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .app-links a:hover {
+    background: rgba(168, 192, 74, 0.2);
+    border-color: #a8c04a;
+  }
+
+  .app-comment {
+    color: #9aa0a6;
+    font-size: 0.9rem;
+    font-style: italic;
+    padding: 10px;
+    background: rgba(20, 23, 26, 0.5);
+    border-radius: 4px;
+    border-left: 2px solid #4a5230;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: rgba(35, 39, 45, 0.5);
+    border: 1px dashed #3a4148;
+    border-radius: 8px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    background: rgba(15, 18, 20, 0.92);
+    color: #666;
+    font-size: 0.85rem;
+    border-top: 1px solid #222;
+    position: relative;
+    z-index: 1;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 12px 16px; }
+    main { padding: 24px 12px; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-container { padding: 20px; }
+    .section-title { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="bg-overlay"></div>
+
+  <header>
+    <div class="logo">[CLAN] Набор в клан</div>
+    <nav id="mainNav">
+      <button class="nav-btn active" data-target="apply">Подать заявку</button>
+      <button class="nav-btn" data-target="applications">Список заявок</button>
+    </nav>
+  </header>
+
+  <div class="ribbon"></div>
+
+  <main>
+    <section id="apply">
+      <h1 class="section-title">Анкета кандидата</h1>
+      <p class="section-subtitle">Заполни все поля, чтобы командир клана мог рассмотреть твою кандидатуру. Поля со звёздочкой (*) обязательны.</p>
+
+      <div class="form-container">
+        <form id="clanForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Никнейм в игре <span>*</span></label>
+              <input type="text" name="nickname" id="nickname" placeholder="Например: _CrazyTank_" required>
+            </div>
+            <div class="form-group">
+              <label>Сервер <span>*</span></label>
+              <select name="server" id="server" required>
+                <option value="">Выбери сервер...</option>
+                <option value="RU">RU (Россия)</option>
+                <option value="EU">EU (Европа)</option>
+                <option value="NA">NA (Северная Америка)</option>
+                <option value="ASIA">ASIA (Азия)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Количество боёв <span>*</span></label>
+              <input type="number" name="battles" id="battles" placeholder="Например: 15000" min="0" required>
+            </div>
+            <div class="form-group">
+              <label>Рейтинг WN8 <span>*</span></label>
+              <input type="number" name="wn8" id="wn8" placeholder="Например: 2200" min="0" max="10000" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Основной класс техники <span>*</span></label>
+              <select name="tankClass" id="tankClass" required>
+                <option value="">Выбери класс...</option>
+                <option value="Тяжёлый танк">Тяжёлый танк (ТТ)</option>
+                <option value="Средний танк">Средний танк (СТ)</option>
+                <option value="Лёгкий танк">Лёгкий танк (ЛТ)</option>
+                <option value="ПТ-САУ">ПТ-САУ</option>
+                <option value="САУ">САУ (Артиллерия)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Микрофон / Discord</label>
+              <select name="mic" id="mic">
+                <option value="Да">Да, есть микрофон</option>
+                <option value="Нет">Нет микрофона</option>
+                <option value="Иногда">Иногда могу говорить</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ссылка на Discord</label>
+              <input type="text" name="discordLink" id="discordLink" placeholder="https://discord.gg/...">
+            </div>
+            <div class="form-group">
+              <label>Ссылка на Telegram</label>
+              <input type="text" name="telegramLink" id="telegramLink" placeholder="https://t.me/ваш_ник">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Почему хочешь в клан? / Опыт игры</label>
+            <textarea name="comment" id="comment" placeholder="Расскажи о своём опыте в клановых боях, наличии техники X уровня..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">Отправить заявку</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="applications">
+      <div class="applications-header">
+        <div>
+          <h2 class="section-title">Принятые заявки</h2>
+          <p class="section-subtitle">Здесь отображаются анкеты, отправленные через форму. Данные сохраняются в браузере.</p>
+        </div>
+        <button class="btn-clear" id="btnClear">Очистить всё</button>
+      </div>
+      
+      <div class="applications-list" id="appList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Учебный проект. Заявки сохраняются в браузере и отправляются на почту через сервис FormSubmit.</p>
+  </footer>
+
+<script>
+// ==========================================
+// ВНИМАНИЕ! ЗАМЕНИ ЭТУ ПОЧТУ НА СВОЮ:
+const MY_EMAIL = "minenkovlad024@gmail.com"; 
+// ==========================================
+
+const form = document.getElementById('clanForm');
+const appList = document.getElementById('appList');
+const nav = document.getElementById('mainNav');
+const btnClear = document.getElementById('btnClear');
+
+let applications = JSON.parse(localStorage.getItem('wotApplications')) || [];
+
+function formatLink(url) {
+  if (!url) return '';
+  let safeUrl = url.trim();
+  if (!/^https?:\/\//i.test(safeUrl)) {
+    safeUrl = 'https://' + safeUrl;
+  }
+  return safeUrl;
+}
+
+function renderApplications() {
+  if (applications.length === 0) {
+    appList.innerHTML = `<div class="empty-state">Пока нет ни одной заявки. Заполни форму выше, чтобы стать первым!</div>`;
+    return;
+  }
+
+  appList.innerHTML = '';
+  applications.sort((a, b) => b.timestamp - a.timestamp);
+
+  applications.forEach((app) => {
+    const card = document.createElement('div');
+    card.className = 'app-card';
+    
+    const date = new Date(app.timestamp).toLocaleString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    let linksHtml = '';
+    if (app.discordLink || app.telegramLink) {
+      linksHtml = '<div class="app-links">';
+      if (app.discordLink) linksHtml += `<a href="${formatLink(app.discordLink)}" target="_blank">🎮 Discord</a>`;
+      if (app.telegramLink) linksHtml += `<a href="${formatLink(app.telegramLink)}" target="_blank">✈️ Telegram</a>`;
+      linksHtml += '</div>';
+    }
+
+    card.innerHTML = `
+      <div class="app-header">
+        <div class="app-nickname">${app.nickname} <span style="font-size:0.8rem; color:#9aa0a6; font-weight:normal;">[${app.server}]</span></div>
+        <div class="app-date">${date}</div>
+      </div>
+      <div class="app-stats">
+        <span>Боёв: ${app.battles}</span>
+        <span>WN8: ${app.wn8}</span>
+        <span>Класс: ${app.tankClass}</span>
+        <span>Мик: ${app.mic}</span>
+      </div>
+      ${linksHtml}
+      ${app.comment ? `<div class="app-comment">«${app.comment}»</div>` : ''}
+    `;
+    appList.appendChild(card);
+  });
+}
+
+// Отправка формы через AJAX (без перезагрузки страницы)
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // Отменяем перезагрузку страницы
+
+  const nickname = document.getElementById('nickname').value.trim();
+  const server = document.getElementById('server').value;
+  const battles = document.getElementById('battles').value;
+  const wn8 = document.getElementById('wn8').value;
+  const tankClass = document.getElementById('tankClass').value;
+  const mic = document.getElementById('mic').value;
+  const discordLink = document.getElementById('discordLink').value.trim();
+  const telegramLink = document.getElementById('telegramLink').value.trim();
+  const comment = document.getElementById('comment').value.trim();
+
+  // 1. Сохраняем локально
+  const newApp = { 
+    nickname, server, battles, wn8, tankClass, mic, 
+    discordLink, telegramLink, comment, 
+    timestamp: Date.now() 
+  };
+
+  applications.push(newApp);
+  localStorage.setItem('wotApplications', JSON.stringify(applications));
+  renderApplications();
+  form.reset();
+
+  // 2. Меняем кнопку на "Отправка..."
+  const submitBtn = form.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = 'Отправка...';
+  submitBtn.disabled = true;
+
+  // 3. Отправляем в фоне на FormSubmit
+  try {
+    const response = await fetch(`https://formsubmit.co/ajax/${MY_EMAIL}`, {
+      method: "POST",
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        "Никнейм": nickname,
+        "Сервер": server,
+        "Боёв": battles,
+        "WN8": wn8,
+        "Класс": tankClass,
+        "Микрофон": mic,
+        "Discord": discordLink || 'Не указан',
+        "Telegram": telegramLink || 'Не указан',
+        "Комментарий": comment || 'Нет',
+        "_subject": "Новая заявка в клан!"
+      })
+    });
+
+    if (response.ok) {
+      alert(`Заявка от игрока ${nickname} успешно отправлена на почту клана!`);
+    } else {
+      alert(`Заявка от ${nickname} сохранена локально, но не удалось отправить письмо. Проверьте настройки FormSubmit.`);
+    }
+  } catch (error) {
+    alert(`Ошибка сети. Заявка сохранена локально.`);
+  } finally {
+    // Возвращаем кнопку в исходное состояние
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+  }
+
+  document.getElementById('applications').scrollIntoView({ behavior: 'smooth' });
+});
+
+btnClear.addEventListener('click', () => {
+  if (confirm('Вы уверены, что хотите удалить ВСЕ заявки? Это действие нельзя отменить.')) {
+    applications = [];
+    localStorage.removeItem('wotApplications');
+    renderApplications();
+  }
+});
+
+nav.addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-btn');
+  if (!btn) return;
+
+  nav.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const targetId = btn.dataset.target;
+  const targetSection = document.getElementById(targetId);
+  if (targetSection) {
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+renderApplications();
+</script>
+</body>
+</html>
